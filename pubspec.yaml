@@ -10,6 +10,7 @@ dependencies:
   carousel_slider: ^4.2.1
   flutter:
     sdk: flutter
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -20,4 +21,5 @@ flutter:
   uses-material-design: true
 
   assets:
-    - lib/images/
+    - assets/images/
+    - assets/logo/
