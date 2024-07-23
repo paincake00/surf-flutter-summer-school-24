@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:surf_flutter_summer_school_24/uikit/theme/context_x.dart';
 
 class ImageSlider extends StatefulWidget {
   final List<String> imagePaths;
@@ -37,11 +38,14 @@ class _ImageSliderState extends State<ImageSlider> {
             Navigator.pop(context);
           },
         ),
-        title: const Padding(
-          padding: EdgeInsets.only(top: 5),
+        title: Padding(
+          padding: const EdgeInsets.only(top: 5),
           child: Text(
             '21.05.2023',
-            style: TextStyle(fontWeight: FontWeight.w300),
+            style: TextStyle(
+              color: context.colorScheme.onSecondary,
+              fontWeight: FontWeight.w300,
+            ),
           ),
         ),
         centerTitle: true,
@@ -52,15 +56,16 @@ class _ImageSliderState extends State<ImageSlider> {
               children: [
                 Text(
                   '${indexImage + 1}',
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: context.colorScheme.primary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   '/${imagePaths.length}',
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: TextStyle(
+                    color: context.colorScheme.secondary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -70,32 +75,28 @@ class _ImageSliderState extends State<ImageSlider> {
           ),
         ],
       ),
-      body: carouselBuilder(context),
-    );
-  }
-
-  Widget carouselBuilder(BuildContext context) {
-    return CarouselSlider.builder(
-      itemCount: imagePaths.length,
-      itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
-          Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-        child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Image.asset(imagePaths[itemIndex], fit: BoxFit.fitHeight)),
-      ),
-      options: CarouselOptions(
-        initialPage: indexImage,
-        height: MediaQuery.of(context).size.height * 0.8,
-        enlargeCenterPage: true,
-        enlargeFactor: 0.3,
-        viewportFraction: 0.75,
-        padEnds: true,
-        onPageChanged: (index, reason) {
-          setState(() {
-            indexImage = index;
-          });
-        },
+      body: CarouselSlider.builder(
+        itemCount: imagePaths.length,
+        itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
+            Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Image.asset(imagePaths[itemIndex], fit: BoxFit.fitHeight)),
+        ),
+        options: CarouselOptions(
+          initialPage: indexImage,
+          height: MediaQuery.of(context).size.height * 0.8,
+          enlargeCenterPage: true,
+          enlargeFactor: 0.3,
+          viewportFraction: 0.75,
+          padEnds: true,
+          onPageChanged: (index, reason) {
+            setState(() {
+              indexImage = index;
+            });
+          },
+        ),
       ),
     );
   }

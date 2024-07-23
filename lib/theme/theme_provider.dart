@@ -1,24 +1,30 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:surf_flutter_summer_school_24/theme/dark_mode.dart';
-import 'package:surf_flutter_summer_school_24/theme/light_mode.dart';
+import 'package:surf_flutter_summer_school_24/storage/theme/theme_storage.dart';
 
 class ThemeProvider with ChangeNotifier {
-  ThemeData _themeData = lightMode;
+  final ThemeStorage _themeStorage;
 
-  ThemeData get themeData => _themeData;
+  ThemeProvider({
+    required ThemeStorage themeStorage,
+  }) : _themeStorage = themeStorage;
 
-  bool get isDarkMode => _themeData == darkMode;
+  late final ValueNotifier<ThemeMode> _themeMode =
+      ValueNotifier<ThemeMode>(_themeStorage.getThemeMode() ?? ThemeMode.light);
 
-  void setTheme(ThemeData themeData) {
-    _themeData = themeData;
+  ValueListenable<ThemeMode> get themeMode => _themeMode;
+
+  bool get isDarkMode => _themeMode.value == ThemeMode.dark;
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    if (mode == _themeMode.value) return;
+    await _themeStorage.setThemeMode(mode: mode);
+    _themeMode.value = mode;
     notifyListeners();
   }
 
-  void toggleTheme() {
-    if (isDarkMode) {
-      setTheme(lightMode);
-    } else {
-      setTheme(darkMode);
-    }
+  Future<void> toggleThemeMode() async {
+    final mode = isDarkMode ? ThemeMode.light : ThemeMode.dark;
+    setThemeMode(mode);
   }
 }
