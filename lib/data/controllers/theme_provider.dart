@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:surf_flutter_summer_school_24/storage/theme/theme_storage.dart';
+import 'package:surf_flutter_summer_school_24/data/repositories/theme_storage.dart';
 
 class ThemeProvider with ChangeNotifier {
   final ThemeStorage _themeStorage;

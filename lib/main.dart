@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:surf_flutter_summer_school_24/pages/main_page.dart';
-import 'package:surf_flutter_summer_school_24/storage/theme/theme_storage.dart';
-import 'package:surf_flutter_summer_school_24/theme/theme_provider.dart';
-import 'package:surf_flutter_summer_school_24/uikit/theme/app_theme_data.dart';
+import 'package:surf_flutter_summer_school_24/data/controllers/photo_controller.dart';
+import 'package:surf_flutter_summer_school_24/data/repositories/mock_photo_repository.dart';
+import 'package:surf_flutter_summer_school_24/internal/main_app.dart';
+import 'package:surf_flutter_summer_school_24/data/repositories/theme_storage.dart';
+import 'package:surf_flutter_summer_school_24/data/controllers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,26 +13,23 @@ void main() async {
   final themeStorage = ThemeStorage(
     sharedPreferences: prefs,
   );
+  final photoRepository = MockPhotoRepository();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(themeStorage: themeStorage),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => ThemeProvider(
+            themeStorage: themeStorage,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PhotoController(
+            photoRepository: photoRepository,
+          ),
+        )
+      ],
       child: const MainApp(),
     ),
   );
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppThemeData.lightTheme,
-      darkTheme: AppThemeData.darkTheme,
-      themeMode: context.watch<ThemeProvider>().themeMode.value,
-      home: const MainPage(),
-    );
-  }
 }

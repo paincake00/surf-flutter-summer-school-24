@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:surf_flutter_summer_school_24/uikit/colors/color_scheme.dart';
+import 'package:surf_flutter_summer_school_24/presentation/uikit/colors/color_scheme.dart';
 
 class AppThemeData {
   static final lightTheme = ThemeData(
@@ -17,6 +17,13 @@ class AppThemeData {
       tertiary: _lightColorScheme.shimmerStart,
       onTertiary: _lightColorScheme.shimmerEnd,
     ),
+    textTheme: TextTheme(
+      bodyMedium: TextStyle(
+        color: _lightColorScheme.mainText,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
+    ),
   );
 
   static final darkTheme = ThemeData(
@@ -33,6 +40,13 @@ class AppThemeData {
       onError: _darkColorScheme.icon,
       tertiary: _darkColorScheme.shimmerStart,
       onTertiary: _darkColorScheme.shimmerEnd,
+    ),
+    textTheme: TextTheme(
+      bodyMedium: TextStyle(
+        color: _darkColorScheme.mainText,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
     ),
   );
 

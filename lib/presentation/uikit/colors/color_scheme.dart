@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:surf_flutter_summer_school_24/uikit/colors/color_palette.dart';
+import 'package:surf_flutter_summer_school_24/presentation/uikit/colors/color_palette.dart';
 
 class AppColorScheme extends ThemeExtension<AppColorScheme> {
   final Color background;

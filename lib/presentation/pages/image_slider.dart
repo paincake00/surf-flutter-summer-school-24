@@ -1,14 +1,15 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:surf_flutter_summer_school_24/uikit/theme/context_x.dart';
+import 'package:surf_flutter_summer_school_24/domain/models/photo_entity.dart';
+import 'package:surf_flutter_summer_school_24/presentation/uikit/theme/context_x.dart';
 
 class ImageSlider extends StatefulWidget {
-  final List<String> imagePaths;
+  final List<PhotoEntity> photos;
   final int indexImage;
 
   const ImageSlider({
     super.key,
-    required this.imagePaths,
+    required this.photos,
     required this.indexImage,
   });
 
@@ -17,15 +18,15 @@ class ImageSlider extends StatefulWidget {
 }
 
 class _ImageSliderState extends State<ImageSlider> {
-  late List<String> imagePaths;
+  late List<PhotoEntity> photos;
   late int indexImage;
 
   @override
   void initState() {
-    imagePaths = widget.imagePaths;
-    indexImage = widget.indexImage;
-
     super.initState();
+
+    photos = widget.photos;
+    indexImage = widget.indexImage;
   }
 
   @override
@@ -63,7 +64,7 @@ class _ImageSliderState extends State<ImageSlider> {
                   ),
                 ),
                 Text(
-                  '/${imagePaths.length}',
+                  '/${photos.length}',
                   style: TextStyle(
                     color: context.colorScheme.secondary,
                     fontSize: 16,
@@ -76,13 +77,13 @@ class _ImageSliderState extends State<ImageSlider> {
         ],
       ),
       body: CarouselSlider.builder(
-        itemCount: imagePaths.length,
+        itemCount: photos.length,
         itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
             Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
           child: ClipRRect(
               borderRadius: BorderRadius.circular(30),
-              child: Image.asset(imagePaths[itemIndex], fit: BoxFit.fitHeight)),
+              child: Image.asset(photos[itemIndex].url, fit: BoxFit.fitHeight)),
         ),
         options: CarouselOptions(
           initialPage: indexImage,

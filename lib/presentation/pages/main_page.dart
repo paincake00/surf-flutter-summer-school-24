@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:surf_flutter_summer_school_24/pages/image_slider.dart';
-import 'package:surf_flutter_summer_school_24/theme/theme_provider.dart';
-import 'package:surf_flutter_summer_school_24/uikit/theme/context_x.dart';
+import 'package:surf_flutter_summer_school_24/data/controllers/photo_controller.dart';
+import 'package:surf_flutter_summer_school_24/domain/models/photo_entity.dart';
+import 'package:surf_flutter_summer_school_24/presentation/pages/image_slider.dart';
+import 'package:surf_flutter_summer_school_24/data/controllers/theme_provider.dart';
+import 'package:surf_flutter_summer_school_24/presentation/uikit/theme/context_x.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -13,31 +15,11 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<String> imagePaths = [
-    'assets/images/4022.jpg',
-    'assets/images/4025.jpg',
-    'assets/images/4020.jpg',
-    'assets/images/4042.jpg',
-    'assets/images/4045.jpg',
-    'assets/images/5040.jpg',
-    'assets/images/5042.jpg',
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colorScheme.surface,
       appBar: AppBar(
-        // title: SizedBox(
-        //   width: 140,
-        //   height: 34,
-        //   child: Image.asset('assets/logo/postogram_logo.png'),
-        //   // child: Consumer<ThemeProvider>(
-        //   //   builder: (_, provider, __) => provider.isDarkMode
-        //   //       ? Image.asset('assets/logo/postogram_logo_light.png')
-        //   //       : Image.asset('assets/logo/postogram_logo.png'),
-        //   // ),
-        // ),
         title: _LogoBuilder(),
         centerTitle: true,
         actions: [
@@ -50,24 +32,81 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      // body: buildImageGrid(),
-      body: _ImageGrid(
-        imagePaths: imagePaths,
-        openImageSlider: openImageSlider,
-      ),
-      // bottomNavigationBar: buildBottomBar(),
-      bottomNavigationBar: const _BottomBar(),
+      body: _body(),
     );
   }
 
-  void openImageSlider(int index) {
+  void openImageSlider(int index, List<PhotoEntity> photos) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ImageSlider(
-          imagePaths: imagePaths,
+          photos: photos,
           indexImage: index,
         ),
+      ),
+    );
+  }
+
+  FutureBuilder _body() {
+    return FutureBuilder(
+      future: context.watch<PhotoController>().photos.value,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return const _OfflineModeScreen();
+        } else if (snapshot.hasData) {
+          return _FutureImageGrid(
+            photos: snapshot.data!,
+            openImageSlider: openImageSlider,
+          );
+        } else {
+          return const _OfflineModeScreen();
+        }
+      },
+    );
+  }
+}
+
+class _OfflineModeScreen extends StatelessWidget {
+  const _OfflineModeScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            '😪',
+            style: TextStyle(
+              fontSize: 50,
+            ),
+          ),
+          const Text(
+            'Упс!',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Произошла ошибка.\nПопробуйте снова.',
+            style: TextStyle(
+              fontSize: 16,
+              color: context.colorScheme.secondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          MaterialButton(
+            onPressed: () {},
+            color: const Color(0xFF80E7FF),
+            child: const Text('Попробовать снова'),
+          ),
+        ],
       ),
     );
   }
@@ -88,31 +127,34 @@ class _LogoBuilder extends StatelessWidget {
   }
 }
 
-class _ImageGrid extends StatelessWidget {
-  final List<String> imagePaths;
-  final void Function(int) openImageSlider;
+class _FutureImageGrid extends StatelessWidget {
+  final List<PhotoEntity> photos;
+  final void Function(int, List<PhotoEntity>) openImageSlider;
 
-  const _ImageGrid({
-    required this.imagePaths,
+  const _FutureImageGrid({
+    required this.photos,
     required this.openImageSlider,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-      child: GridView.builder(
-        itemCount: imagePaths.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-        ),
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-          child: GestureDetector(
-            onTap: () => openImageSlider(index),
-            child: Image.asset(
-              imagePaths[index],
-              fit: BoxFit.cover,
+    return Scaffold(
+      bottomNavigationBar: const _BottomBar(),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
+        child: GridView.builder(
+          itemCount: photos.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+          ),
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+            child: GestureDetector(
+              onTap: () => openImageSlider(index, photos),
+              child: Image.asset(
+                photos[index].url,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
@@ -171,10 +213,6 @@ class _BottomBar extends StatelessWidget {
                 Consumer<ThemeProvider>(
                   builder: (_, provider, __) => Text(
                     provider.isDarkMode ? 'Темная' : 'Светлая',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: context.colorScheme.secondary,
-                    ),
                   ),
                 ),
               ],
