@@ -1,10 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:surf_flutter_summer_school_24/domain/models/photo_entity.dart';
+import 'package:surf_flutter_summer_school_24/domain/models/items.dart';
 import 'package:surf_flutter_summer_school_24/presentation/uikit/theme/context_x.dart';
 
 class ImageSlider extends StatefulWidget {
-  final List<PhotoEntity> photos;
+  final Items photos;
   final int indexImage;
 
   const ImageSlider({
@@ -18,8 +18,9 @@ class ImageSlider extends StatefulWidget {
 }
 
 class _ImageSliderState extends State<ImageSlider> {
-  late List<PhotoEntity> photos;
+  late Items photos;
   late int indexImage;
+  late String date;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _ImageSliderState extends State<ImageSlider> {
 
     photos = widget.photos;
     indexImage = widget.indexImage;
+    date = photos.items![indexImage].created;
   }
 
   @override
@@ -42,7 +44,7 @@ class _ImageSliderState extends State<ImageSlider> {
         title: Padding(
           padding: const EdgeInsets.only(top: 5),
           child: Text(
-            '21.05.2023',
+            date,
             style: TextStyle(
               color: context.colorScheme.onSecondary,
               fontWeight: FontWeight.w300,
@@ -64,7 +66,7 @@ class _ImageSliderState extends State<ImageSlider> {
                   ),
                 ),
                 Text(
-                  '/${photos.length}',
+                  '/${photos.items!.length}',
                   style: TextStyle(
                     color: context.colorScheme.secondary,
                     fontSize: 16,
@@ -77,13 +79,17 @@ class _ImageSliderState extends State<ImageSlider> {
         ],
       ),
       body: CarouselSlider.builder(
-        itemCount: photos.length,
+        itemCount: photos.items!.length,
         itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
             Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
           child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Image.asset(photos[itemIndex].url, fit: BoxFit.fitHeight)),
+            borderRadius: BorderRadius.circular(30),
+            child: Image.network(
+              photos.items![itemIndex].file,
+              fit: BoxFit.fitHeight,
+            ),
+          ),
         ),
         options: CarouselOptions(
           initialPage: indexImage,
@@ -95,6 +101,7 @@ class _ImageSliderState extends State<ImageSlider> {
           onPageChanged: (index, reason) {
             setState(() {
               indexImage = index;
+              date = photos.items![index].created;
             });
           },
         ),

@@ -17,6 +17,10 @@ dependencies:
   shared_preferences: ^2.2.3
   equatable: ^2.0.5
   json_annotation: ^4.9.0
+  dio: ^5.5.0+1
+  flutter_dotenv: ^5.1.0
+  image_picker: ^1.1.2
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +35,4 @@ flutter:
   assets:
     - assets/images/
     - assets/logo/
+    - .env

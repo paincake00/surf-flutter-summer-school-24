@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:surf_flutter_summer_school_24/data/controllers/photo_controller.dart';
-import 'package:surf_flutter_summer_school_24/domain/models/photo_entity.dart';
+import 'package:surf_flutter_summer_school_24/domain/models/items.dart';
 import 'package:surf_flutter_summer_school_24/presentation/pages/image_slider.dart';
 import 'package:surf_flutter_summer_school_24/data/controllers/theme_provider.dart';
 import 'package:surf_flutter_summer_school_24/presentation/uikit/theme/context_x.dart';
@@ -32,11 +33,14 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: _body(),
+      body: RefreshIndicator(
+        onRefresh: () => context.read<PhotoController>().updatePhotos(),
+        child: _body(),
+      ),
     );
   }
 
-  void openImageSlider(int index, List<PhotoEntity> photos) {
+  void openImageSlider(int index, Items photos) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -102,7 +106,9 @@ class _OfflineModeScreen extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           MaterialButton(
-            onPressed: () {},
+            onPressed: () {
+              context.read<PhotoController>().updatePhotos();
+            },
             color: const Color(0xFF80E7FF),
             child: const Text('Попробовать снова'),
           ),
@@ -128,8 +134,8 @@ class _LogoBuilder extends StatelessWidget {
 }
 
 class _FutureImageGrid extends StatelessWidget {
-  final List<PhotoEntity> photos;
-  final void Function(int, List<PhotoEntity>) openImageSlider;
+  final Items photos;
+  final void Function(int, Items) openImageSlider;
 
   const _FutureImageGrid({
     required this.photos,
@@ -143,7 +149,7 @@ class _FutureImageGrid extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
         child: GridView.builder(
-          itemCount: photos.length,
+          itemCount: photos.items!.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
           ),
@@ -151,8 +157,8 @@ class _FutureImageGrid extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
             child: GestureDetector(
               onTap: () => openImageSlider(index, photos),
-              child: Image.asset(
-                photos[index].url,
+              child: Image.network(
+                photos.items![index].file,
                 fit: BoxFit.cover,
               ),
             ),
@@ -219,7 +225,9 @@ class _BottomBar extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              imageSourceSelecter(context);
+            },
             child: Row(
               children: [
                 Icon(
@@ -238,6 +246,45 @@ class _BottomBar extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void imageSourceSelecter(context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Text('Выберите источник изображения'),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  context
+                      .read<PhotoController>()
+                      .uploadPhoto(ImageSource.camera);
+
+                  Navigator.pop(context);
+                },
+                child: const Text('Камера'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context
+                      .read<PhotoController>()
+                      .uploadPhoto(ImageSource.gallery);
+
+                  Navigator.pop(context);
+                },
+                child: const Text('Галерея'),
+              ),
+            ],
           ),
         ],
       ),
