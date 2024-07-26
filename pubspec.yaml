@@ -7,17 +7,34 @@ environment:
   sdk: ">=3.4.3 <4.0.0"
 
 dependencies:
-  carousel_slider: ^4.2.1
   flutter:
     sdk: flutter
+
+  carousel_slider: ^4.2.1
+  collection: ^1.18.0
+  flutter_svg: ^2.0.10+1
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  equatable: ^2.0.5
+  json_annotation: ^4.9.0
+  dio: ^5.5.0+1
+  flutter_dotenv: ^5.1.0
+  image_picker: ^1.1.2
+  http: ^1.2.2
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  json_serializable: ^6.8.0
+  build_runner: ^2.4.11
 
 flutter:
   uses-material-design: true
 
   assets:
-    - lib/images/
+    - assets/images/
+    - assets/logo/
+    - .env
