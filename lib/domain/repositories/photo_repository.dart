@@ -4,7 +4,7 @@ import 'package:surf_flutter_summer_school_24/domain/models/items.dart';
 abstract interface class PhotoRepository {
   Future<Items?> getPhotos();
 
-  Future<void> uploadPhoto(ImageSource imageSource);
+  Future<Items?> uploadPhoto(ImageSource imageSource);
 
-  Future<void> deletePhoto(String path);
+  Future<Items?> deletePhoto(String path);
 }
