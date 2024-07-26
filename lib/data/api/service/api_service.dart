@@ -94,4 +94,33 @@ class ApiService {
     }
     return null;
   }
+
+  Future<void> deletePhoto(Dio dio, String path) async {
+    try {
+      await dio.delete(
+        'v1/disk/resources',
+        queryParameters: {
+          'path': path,
+          'permanently': true,
+        },
+        options: Options(
+          headers: {
+            HttpHeaders.authorizationHeader: 'OAuth $_token',
+          },
+        ),
+      );
+    } on Exception catch (e) {
+      if (e is DioException) {
+        if (e.response?.statusCode == 401) {
+          throw Exception('Unauthorized');
+        }
+        if (e.response?.statusCode == 404) {
+          throw Exception('Not found');
+        }
+        if (e.response?.statusCode == 500) {
+          throw Exception('Server error');
+        }
+      }
+    }
+  }
 }

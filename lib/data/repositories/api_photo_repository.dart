@@ -23,4 +23,9 @@ class ApiPhotoRepository implements PhotoRepository {
   Future<void> uploadPhoto(ImageSource imageSource) async {
     return _apiService.uploadPhoto(_dio, imageSource);
   }
+
+  @override
+  Future<void> deletePhoto(String path) {
+    return _apiService.deletePhoto(_dio, path);
+  }
 }

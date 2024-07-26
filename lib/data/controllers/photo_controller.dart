@@ -10,18 +10,21 @@ class PhotoController with ChangeNotifier {
     required PhotoRepository photoRepository,
   }) : _photoRepository = photoRepository;
 
-  late final ValueNotifier<Future<Items?>> _photos =
-      ValueNotifier<Future<Items?>>(_photoRepository.getPhotos());
+  late final ValueNotifier<Items?> _photos = ValueNotifier<Items?>(null);
 
-  ValueListenable<Future<Items?>> get photos => _photos;
+  ValueListenable<Items?> get photos => _photos;
+
+  Future<void> getPhotos() async {
+    _photos.value = await _photoRepository.getPhotos();
+  }
 
   void uploadPhoto(ImageSource imageSource) {
     _photoRepository.uploadPhoto(imageSource);
-    updatePhotos();
+    getPhotos();
   }
 
-  Future<void> updatePhotos() async {
-    _photos.value = _photoRepository.getPhotos();
-    notifyListeners();
+  void deletePhoto(String path) {
+    _photoRepository.deletePhoto(path);
+    getPhotos();
   }
 }

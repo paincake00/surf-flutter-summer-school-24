@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:surf_flutter_summer_school_24/data/controllers/photo_controller.dart';
 import 'package:surf_flutter_summer_school_24/domain/models/items.dart';
 import 'package:surf_flutter_summer_school_24/presentation/pages/image_slider.dart';
@@ -16,6 +18,16 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  Items? photos;
+
+  @override
+  void initState() {
+    super.initState();
+
+    photos = context.read<PhotoController>().photos.value;
+    context.read<PhotoController>().getPhotos();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +46,22 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => context.read<PhotoController>().updatePhotos(),
-        child: _body(),
+        onRefresh: () => context.read<PhotoController>().getPhotos(),
+        child: ValueListenableBuilder(
+          valueListenable: context.read<PhotoController>().photos,
+          builder: (context, photos, __) {
+            if (photos == null) {
+              return const _OfflineModeScreen();
+            } else {
+              // final List<Image>
+
+              return _FutureImageGrid(
+                photos: photos,
+                openImageSlider: openImageSlider,
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -49,28 +75,6 @@ class _MainPageState extends State<MainPage> {
           indexImage: index,
         ),
       ),
-    );
-  }
-
-  FutureBuilder _body() {
-    return FutureBuilder(
-      future: context.watch<PhotoController>().photos.value,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return const _OfflineModeScreen();
-        } else if (snapshot.hasData) {
-          return _FutureImageGrid(
-            photos: snapshot.data!,
-            openImageSlider: openImageSlider,
-          );
-        } else {
-          return const _OfflineModeScreen();
-        }
-      },
     );
   }
 }
@@ -107,7 +111,7 @@ class _OfflineModeScreen extends StatelessWidget {
           ),
           MaterialButton(
             onPressed: () {
-              context.read<PhotoController>().updatePhotos();
+              context.read<PhotoController>().getPhotos();
             },
             color: const Color(0xFF80E7FF),
             child: const Text('Попробовать снова'),
@@ -148,21 +152,39 @@ class _FutureImageGrid extends StatelessWidget {
       bottomNavigationBar: const _BottomBar(),
       body: Padding(
         padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-        child: GridView.builder(
-          itemCount: photos.items!.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-          ),
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-            child: GestureDetector(
-              onTap: () => openImageSlider(index, photos),
-              child: Image.network(
-                photos.items![index].file,
-                fit: BoxFit.cover,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return GridView.builder(
+              itemCount: photos.items!.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
               ),
-            ),
-          ),
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                child: GestureDetector(
+                  onTap: () => openImageSlider(index, photos),
+                  child: CachedNetworkImage(
+                    imageUrl: photos.items![index].file,
+                    placeholder: (context, url) => Shimmer(
+                      gradient: LinearGradient(
+                        colors: [
+                          context.colorScheme.tertiary,
+                          context.colorScheme.onTertiary
+                        ],
+                      ),
+                      child: Container(
+                        width: constraints.maxWidth / 3 - 4,
+                        height: constraints.maxWidth / 3 - 4,
+                        color: context.colorScheme.tertiary,
+                      ),
+                    ),
+                    fit: BoxFit.cover,
+                  ),
+                  // child: getImage(index, context),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
