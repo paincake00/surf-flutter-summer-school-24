@@ -20,11 +20,11 @@ class ApiService {
     return Dio(BaseOptions(contentType: 'application/json'));
   }
 
-  Future<void> uploadPhoto(Dio dio, ImageSource imageSource) async {
+  Future<Items?> uploadPhoto(Dio dio, ImageSource imageSource) async {
     try {
       final picker = ImagePicker();
       final imageFromGallery = await picker.pickImage(source: imageSource);
-      if (imageFromGallery == null) return;
+      if (imageFromGallery == null) return getPhotos(dio);
 
       final responseUpload = await dio.get(
         'v1/disk/resources/upload',
@@ -45,7 +45,9 @@ class ApiService {
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path),
       });
-      dio.put(linkToUpload, data: formData);
+      await dio.put(linkToUpload, data: formData);
+
+      return getPhotos(dio);
     } on Exception catch (e) {
       if (e is DioException) {
         if (e.response?.statusCode == 401) {
@@ -62,6 +64,7 @@ class ApiService {
         }
       }
     }
+    return null;
   }
 
   Future<Items?> getPhotos(Dio dio) async {
@@ -95,7 +98,7 @@ class ApiService {
     return null;
   }
 
-  Future<void> deletePhoto(Dio dio, String path) async {
+  Future<Items?> deletePhoto(Dio dio, String path) async {
     try {
       await dio.delete(
         'v1/disk/resources',
@@ -109,18 +112,17 @@ class ApiService {
           },
         ),
       );
+      return getPhotos(dio);
     } on Exception catch (e) {
       if (e is DioException) {
         if (e.response?.statusCode == 401) {
           throw Exception('Unauthorized');
-        }
-        if (e.response?.statusCode == 404) {
-          throw Exception('Not found');
         }
         if (e.response?.statusCode == 500) {
           throw Exception('Server error');
         }
       }
     }
+    return null;
   }
 }

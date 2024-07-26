@@ -57,22 +57,9 @@ class _MainPageState extends State<MainPage> {
 
               return _FutureImageGrid(
                 photos: photos,
-                openImageSlider: openImageSlider,
               );
             }
           },
-        ),
-      ),
-    );
-  }
-
-  void openImageSlider(int index, Items photos) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImageSlider(
-          photos: photos,
-          indexImage: index,
         ),
       ),
     );
@@ -139,12 +126,36 @@ class _LogoBuilder extends StatelessWidget {
 
 class _FutureImageGrid extends StatelessWidget {
   final Items photos;
-  final void Function(int, Items) openImageSlider;
 
   const _FutureImageGrid({
     required this.photos,
-    required this.openImageSlider,
   });
+
+  void openImageSliderAnim(BuildContext context, int index, Items photos) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => ImageSlider(
+          photos: photos,
+          indexImage: index,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +173,7 @@ class _FutureImageGrid extends StatelessWidget {
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                 child: GestureDetector(
-                  onTap: () => openImageSlider(index, photos),
+                  onTap: () => openImageSliderAnim(context, index, photos),
                   child: CachedNetworkImage(
                     imageUrl: photos.items![index].file,
                     placeholder: (context, url) => Shimmer(

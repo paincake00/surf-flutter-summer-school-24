@@ -18,7 +18,9 @@ void main() async {
     token: dotenv.env['OAUTH_TOKEN'],
   );
 
-  final dio = apiServise.dioInit(apiUrl: dotenv.env['API_URL']);
+  final dio = apiServise.dioInit(
+    apiUrl: dotenv.env['API_URL'],
+  );
 
   final prefs = await SharedPreferences.getInstance();
   final themeStorage = ThemeStorage(

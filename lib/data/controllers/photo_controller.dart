@@ -18,13 +18,11 @@ class PhotoController with ChangeNotifier {
     _photos.value = await _photoRepository.getPhotos();
   }
 
-  void uploadPhoto(ImageSource imageSource) {
-    _photoRepository.uploadPhoto(imageSource);
-    getPhotos();
+  void uploadPhoto(ImageSource imageSource) async {
+    _photos.value = await _photoRepository.uploadPhoto(imageSource);
   }
 
-  void deletePhoto(String path) {
-    _photoRepository.deletePhoto(path);
-    getPhotos();
+  void deletePhoto(String path) async {
+    _photos.value = await _photoRepository.deletePhoto(path);
   }
 }
